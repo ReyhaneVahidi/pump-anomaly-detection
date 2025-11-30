@@ -22,6 +22,9 @@ from .features.temporal_features import compute_temporal_features
 from .features.frequency_features import compute_frequency_features
 from .features.brightness_features import compute_brightness_features
 from .feature_packaging import pack_filename_timestamp
+from .features.energy_features import compute_energy_features
+from features.peak_features import compute_peak_features
+
 
 
 
@@ -64,6 +67,8 @@ def extract_features_from_video(path: str) -> Optional[Dict[str, Any]]:
     features.update(compute_temporal_features(segment_motion, fps=FPS))
     features.update(compute_frequency_features(segment_motion, fps=FPS))
     features.update(compute_brightness_features(segment_brightness))
+    features.update(compute_energy_features(segment_motion))
+    features.update(compute_peak_features(segment_motion))
 
     # Add timestamp metadata
     features.update(pack_filename_timestamp(path))
