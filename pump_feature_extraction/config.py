@@ -28,8 +28,8 @@ VIDEO_DIR: Path = Path(r"D:\Masterthesis\pi videos\videos")
 OUTPUT_CSV: Path = Path(r"D:\Masterthesis\pi videos\results\new_feature_set.csv")
 
 # === MOTION DETECTION PARAMETERS ===
-MOTION_ABS_DIFF_THRESH: int = 15  # Threshold for pixel difference to count as motion
-MOTION_MIN_PIXELS: int = 1000     # Minimum pixels changed to consider pump active
+MOTION_ABS_DIFF_THRESH: int = 10  # Threshold for pixel difference to count as motion
+MOTION_MIN_PIXELS: int = 400     # Minimum pixels changed to consider pump active
 PERSIST_FRAMES: int = 6           # Number of consecutive frames above threshold to confirm motion
 
 # === OTHER PARAMETERS ===

@@ -11,20 +11,22 @@ Features include:
 
 from typing import Any, Dict, Sequence
 import numpy as np
+from numpy.typing import NDArray
 from scipy.stats import entropy, skew, kurtosis
 from scipy.signal import find_peaks
 from ..utils import autocorr, compute_normalized_slopes, compute_rolling_slopes
 
 
 def compute_temporal_features(
-    segment_motion: Sequence[float],
+    segment_motion: NDArray[np.float64],
     fps: int = 30
 ) -> Dict[str, Any]:
+
     """
     Compute temporal motion features for a segment of ROI motion.
 
     Args:
-        segment_motion (Sequence[float]): Motion values for a segment of frames.
+        segment_motion (NDArray[np.float64]): Motion values for a segment of frames.
         fps (int, optional): Frames per second. Defaults to 30.
 
     Returns:

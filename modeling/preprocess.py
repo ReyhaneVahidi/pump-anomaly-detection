@@ -22,7 +22,7 @@ from typing import List, Tuple, Dict, Any, Optional
 # -----------------------------
 # Paths
 # -----------------------------
-RAW_FEATURE_PATH = Path(r"D:\Masterthesis\pump-anomaly-detection\data\raw\normal\new_feature_set.csv")
+RAW_FEATURE_PATH = Path(r"D:\Masterthesis\pump-anomaly-detection\data\raw\normal\combined_features.csv")
 OUTPUT_PROCESSED_PATH = Path(r"D:\Masterthesis\pump-anomaly-detection\data\processed\features_clean_scaled.csv")
 SCALER_PATH = Path(r"D:\Masterthesis\pump-anomaly-detection\data\processed\scaler.pkl")
 

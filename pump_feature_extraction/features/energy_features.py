@@ -4,9 +4,9 @@ Compute energy-based motion features.
 
 from typing import Sequence, Dict
 import numpy as np
+from numpy.typing import NDArray
 
-
-def compute_energy_features(motion_signal: Sequence[float]) -> Dict[str, float]:
+def compute_energy_features(motion_signal: NDArray[np.float64]) -> Dict[str, float]:
     """
     Compute energy and power features from a motion signal.
 
@@ -15,7 +15,7 @@ def compute_energy_features(motion_signal: Sequence[float]) -> Dict[str, float]:
         - motion_power: Energy normalized by length
 
     Args:
-        motion_signal (Sequence[float]): 1D motion magnitude per frame.
+        motion_signal (NDArray[np.float64]): 1D motion magnitude per frame.
 
     Returns:
         Dict[str, float]: Dictionary containing energy-based features.

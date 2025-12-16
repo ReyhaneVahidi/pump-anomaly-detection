@@ -4,10 +4,11 @@ Compute peak geometry features from a motion signal.
 
 from typing import Sequence, Dict
 import numpy as np
+from numpy.typing import NDArray
 from scipy.signal import find_peaks
 
 
-def compute_peak_features(motion_signal: Sequence[float]) -> Dict[str, float]:
+def compute_peak_features(motion_signal: NDArray[np.float64]) -> Dict[str, float]:
     """
     Features:
         - motion_peak_count

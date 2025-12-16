@@ -4,16 +4,17 @@ Utility functions for motion and feature analysis.
 
 from typing import Sequence, List, Tuple
 import numpy as np
+from numpy.typing import NDArray
 from scipy.stats import linregress
 
 
 
-def autocorr(x: Sequence[float], lag: int) -> float:
+def autocorr(x: NDArray[np.float64], lag: int) -> float:
     """
     Compute the autocorrelation of a 1D sequence at a given lag.
 
     Args:
-        x (Sequence[float]): Input sequence (e.g., motion values).
+        x (NDArray[np.float64]): Input sequence (e.g., motion values).
         lag (int): Lag value to compute autocorrelation.
 
     Returns:
@@ -77,12 +78,12 @@ def compute_normalized_slopes(
 
     return slope_start, slope_end, norm_start, norm_end
 
-def compute_rolling_slopes(signal: Sequence[float], window: int) -> List[float]:
+def compute_rolling_slopes(signal: NDArray[np.float64], window: int) -> List[float]:
     """
     Compute rolling slopes over a sliding window.
 
     Args:
-        signal (Sequence[float]): Input 1D signal.
+        signal (NDArray[np.float64]): Input 1D signal.
         window (int): Number of samples per window.
 
     Returns:

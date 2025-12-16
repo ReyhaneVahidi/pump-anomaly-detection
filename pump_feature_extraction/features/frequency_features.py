@@ -4,10 +4,11 @@ Compute frequency-domain features from a segment of motion values.
 
 from typing import Sequence, Dict, Any
 import numpy as np
+from numpy.typing import NDArray
 
 
 def compute_frequency_features(
-    segment_motion: Sequence[float],
+    segment_motion: NDArray[np.float64],
     fps: int = 30
 ) -> Dict[str, float]:
     """
@@ -19,7 +20,7 @@ def compute_frequency_features(
         - spectral_bandwidth: Standard deviation of frequencies
 
     Args:
-        segment_motion (Sequence[float]): Motion values for a segment of frames.
+        segment_motion (NDArray[np.float64]): Motion values for a segment of frames.
         fps (int, optional): Frames per second. Defaults to 30.
 
     Returns:
