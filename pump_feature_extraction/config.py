@@ -16,8 +16,6 @@ from typing import Tuple
 # --- VIDEO SETTINGS ---
 FPS: int = 30  # Frames per second of the pump videos
 
-# ROI defined as (x1, y1, x2, y2)
-ROI: Tuple[int, int, int, int] = (724, 478, 957, 697)
 
 
 # --- DIRECTORIES ---

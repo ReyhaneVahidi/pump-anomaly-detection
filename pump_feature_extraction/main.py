@@ -38,7 +38,7 @@ def extract_features_from_video(path: str) -> Optional[Dict[str, Any]]:
         return None
 
     full_motion, roi_motion = compute_motion_from_frames(full_frames, roi_frames)
-    pump_start, pump_end = detect_pump_start_end(full_motion)
+    pump_start, pump_end = detect_pump_start_end(roi_motion)
 
     if pump_start is None or pump_end is None:
         logging.warning(f"Could not detect pump start/end for {path}")
@@ -46,7 +46,7 @@ def extract_features_from_video(path: str) -> Optional[Dict[str, Any]]:
         return None
 
     # Segment of interest
-    segment_motion = full_motion[pump_start:pump_end + 1]
+    segment_motion = roi_motion[pump_start:pump_end + 1]
     segment_brightness = brightness[pump_start:pump_end + 1]
 
     features: Dict[str, Any] = {

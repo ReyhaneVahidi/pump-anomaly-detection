@@ -1,6 +1,17 @@
 __pycache__/
+
+# Ignore specific files
 *.mp4
 *.avi
 *.mov
 *.mkv
+*.csv
+*.pkl
+*.png
+*.json
+
+# Ignore specific directories
 data/
+models/
+screenshots/
+
