@@ -3,11 +3,14 @@ Main script for extracting pump video features (per file + summary).
 
 Workflow:
 1. Read video frames (full + ROI)
-2. Compute motion
-3. Detect pump start/end
-4. Compute temporal, frequency, and brightness features
-5. Save per-file results to CSV
-6. Write summary + logs
+2. Compute motion (diff-based full + ROI)
+3. Detect pump start/end (based on FULL-FRAME motion)
+4. Compute optical-flow ROI signal (for windowed features)
+5. Segment signals to pump-on region
+6. Compute temporal, frequency, brightness, energy, peak features (existing)
+7. Compute windowed optical-flow features (duty cycle, longest off, FFT dom freq, PEAK sanity freq)
+8. Save per-file results to CSV
+9. Write summary + logs
 """
 
 from pathlib import Path
@@ -19,12 +22,18 @@ from tqdm import tqdm
 
 from pump_feature_extraction.config import VIDEO_DIR, OUTPUT_CSV, FPS
 from pump_feature_extraction.video_io import read_video_frames
-from pump_feature_extraction.motion import compute_motion_from_frames, detect_pump_start_end
+from pump_feature_extraction.motion import (
+    compute_motion_from_frames,
+    compute_optical_flow_signal,
+    detect_pump_start_end,
+)
+
 from pump_feature_extraction.features.temporal_features import compute_temporal_features
 from pump_feature_extraction.features.frequency_features import compute_frequency_features
 from pump_feature_extraction.features.brightness_features import compute_brightness_features
 from pump_feature_extraction.features.energy_features import compute_energy_features
 from pump_feature_extraction.features.peak_features import compute_peak_features
+from pump_feature_extraction.features.flow_window_features import compute_flow_window_features
 from pump_feature_extraction.feature_packaging import pack_filename_timestamp
 
 
@@ -37,17 +46,40 @@ def extract_features_from_video(path: str) -> Optional[Dict[str, Any]]:
         tqdm.write(f"[ERROR] {os.path.basename(path)} -> {e}")
         return None
 
-    full_motion, roi_motion = compute_motion_from_frames(full_frames, roi_frames)
-    pump_start, pump_end = detect_pump_start_end(roi_motion)
+    if frame_count is None or frame_count <= 1:
+        logging.warning(f"Not enough frames in {path}")
+        tqdm.write(f"[WARN] Too few frames: {os.path.basename(path)}")
+        return None
+
+    # 1) Diff-based motion signals (existing, fast)
+    full_motion_raw, roi_motion_raw, roi_motion_norm = compute_motion_from_frames(full_frames, roi_frames)
+
+    # 2) Optical-flow signal on ROI (new, for duty/off/frequency window features)
+    roi_flow = compute_optical_flow_signal(
+        roi_frames,
+        downscale=0.5,  # speed; set to 1.0 on PC if you prefer
+    )
+
+    # 3) Start/end detection should use FULL-frame motion
+    pump_start, pump_end = detect_pump_start_end(roi_motion_raw)
 
     if pump_start is None or pump_end is None:
         logging.warning(f"Could not detect pump start/end for {path}")
         tqdm.write(f"[WARN] No start/end for {os.path.basename(path)}")
         return None
 
-    # Segment of interest
-    segment_motion = roi_motion[pump_start:pump_end + 1]
+    pump_start = max(0, int(pump_start))
+    pump_end = min(int(pump_end), frame_count - 1)
+
+    if pump_end <= pump_start:
+        logging.warning(f"Invalid pump segment for {path}: start={pump_start}, end={pump_end}")
+        tqdm.write(f"[WARN] Invalid segment for {os.path.basename(path)}")
+        return None
+
+    # 4) Segment of interest (pump-on)
+    segment_motion = roi_motion_norm[pump_start:pump_end + 1]
     segment_brightness = brightness[pump_start:pump_end + 1]
+    segment_flow = roi_flow[pump_start:pump_end + 1]
 
     features: Dict[str, Any] = {
         "file": os.path.basename(path),
@@ -57,12 +89,25 @@ def extract_features_from_video(path: str) -> Optional[Dict[str, Any]]:
         "pump_duration_s": (pump_end - pump_start) / FPS,
     }
 
-    # Compute feature sets
+    # 5) Existing feature sets (diff-based ROI motion + brightness)
     features.update(compute_temporal_features(segment_motion, fps=FPS))
     features.update(compute_frequency_features(segment_motion, fps=FPS))
     features.update(compute_brightness_features(segment_brightness))
     features.update(compute_energy_features(segment_motion))
     features.update(compute_peak_features(segment_motion))
+
+    # 6) New windowed optical-flow features (includes PEAK sanity frequency)
+    # Pass diff-based motion as diff_signal so you get peak frequency too.
+    features.update(
+        compute_flow_window_features(
+            segment_flow,
+            fps=FPS,
+            diff_signal=segment_motion,
+            enable_peak_sanitycheck=True,
+        )
+    )
+
+    # 7) Timestamp packaging
     features.update(pack_filename_timestamp(path))
 
     return features

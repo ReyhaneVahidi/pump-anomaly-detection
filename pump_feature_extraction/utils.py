@@ -45,38 +45,46 @@ def safe_slope(values: Sequence[float], min_len: int = 5) -> float:
     return float(linregress(t, values_array).slope)
 
 
-def compute_slope(signal: np.ndarray) -> float:
+def compute_slope(signal: np.ndarray, fps: int) -> float:
     """Return the slope of a 1D signal using linear regression."""
-    x = np.arange(len(signal))
+    x = np.arange(len(signal)) / float(fps)   # seconds, not frames. More stable if fps changes in different settings.
     slope, _, _, _, _ = linregress(x, signal)
     return float(slope)
 
 def compute_normalized_slopes(
-    signal: np.ndarray, motion_rms: float, pct: float = 0.2
+    signal: np.ndarray,
+    motion_rms: float,
+    fps: int,
+    pct: float = 0.2
 ) -> Tuple[float, float, float, float]:
     """
-    Compute slope_start and slope_end using pct of the signal,
-    and normalize each by motion_rms.
+    Compute slope at start and end of the signal (per second),
+    and normalize by motion_rms.
 
     Returns:
         slope_start, slope_end, norm_start, norm_end
     """
     n = len(signal)
+    if n < 3:
+        return 0.0, 0.0, 0.0, 0.0
+
     k = max(3, int(n * pct))
 
     start_segment = signal[:k]
     end_segment   = signal[-k:]
 
-    slope_start = compute_slope(start_segment)
-    slope_end   = compute_slope(end_segment)
+    slope_start = compute_slope(start_segment, fps)
+    slope_end   = compute_slope(end_segment, fps)
 
-    if motion_rms == 0:
-        norm_start, norm_end = 0.0, 0.0
-    else:
+    if motion_rms > 0:
         norm_start = slope_start / motion_rms
-        norm_end   = slope_end / motion_rms
+        norm_end   = slope_end   / motion_rms
+    else:
+        norm_start = 0.0
+        norm_end   = 0.0
 
     return slope_start, slope_end, norm_start, norm_end
+
 
 def compute_rolling_slopes(signal: NDArray[np.float64], window: int) -> List[float]:
     """

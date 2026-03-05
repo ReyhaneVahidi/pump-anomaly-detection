@@ -20,10 +20,10 @@ FPS: int = 30  # Frames per second of the pump videos
 
 # --- DIRECTORIES ---
 # Folder containing input videos
-VIDEO_DIR: Path = Path(r"D:\Masterthesis\pi videos\videos")
+VIDEO_DIR: Path = Path(r"D:\Masterthesis\pump-anomaly-detection\data\raw\videos\normal")
 
 # Folder where extracted feature CSV will be saved
-OUTPUT_CSV: Path = Path(r"D:\Masterthesis\pi videos\results\new_feature_set.csv")
+OUTPUT_CSV: Path = Path(r"D:\Masterthesis\pump-anomaly-detection\data\raw\results\new_feature_set.csv")
 
 # === MOTION DETECTION PARAMETERS ===
 MOTION_ABS_DIFF_THRESH: int = 10  # Threshold for pixel difference to count as motion

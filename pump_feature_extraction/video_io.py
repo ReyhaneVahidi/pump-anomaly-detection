@@ -13,7 +13,7 @@ from .config import GAUSSIAN_BLUR_K
 
 # ------------------ ROI LOADING ------------------
 
-ROI_JSON = Path(__file__).parents[1] / "roi" / "pump_rois.json"
+ROI_JSON = Path(__file__).parents[1] / "roi" / "normal_pump_rois.json"
 
 with open(ROI_JSON, "r") as f:
     ROI_MAP = json.load(f)
